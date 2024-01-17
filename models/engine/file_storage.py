@@ -1,58 +1,84 @@
 #!/usr/bin/python3
-"""Store first object"""
+"""This module defines a class to manage file storage for hbnb clone"""
 import json
-import os
-from models.base_model import BaseModel
-from models.user import User
-from models.state import State
 from models.city import City
-from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
+from models.state import State
+from models.user import User
+from models.amenity import Amenity
+
+classes = {"Amenity": Amenity, "City": City,
+           "Place": Place, "Review": Review, "State": State, "User": User}
 
 
 class FileStorage:
-    __file_path = "file.json"
+    """This class manages storage of hbnb models in JSON format"""
+    __file_path = 'file.json'
     __objects = {}
 
-    def all(self):
-        """return the dictionary"""
+    def all(self, cls=None):
+        """Returns a dictionary of models currently in storage
+        if a cls is specified, returns a dictionary of objects of that type
+        """
+        if cls is not None:
+            if type(cls) == str:
+                cls = classes[cls]
+            cls_dict = {}
+            for key, value in self.__objects.items():
+                if type(value) == cls:
+                    cls_dict[key] = value
+            return cls_dict
         return self.__objects
 
     def new(self, obj):
-        """set in __objects"""
-        key = "{}.{}".format(obj.__class__.__name__, obj.id)
-        self.__objects[key] = obj
+        """Adds new object to storage dictionary"""
+        self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
 
     def save(self):
-        """store object int a json file"""
-        data = {key: obj.to_dict() for key, obj in self.__objects.items()}
-        with open(self.__file_path, 'w', encoding='utf-8') as file:
-            json.dump(data, file)
+        """Saves storage dictionary to file"""
+        with open(FileStorage.__file_path, 'w') as f:
+            temp = {}
+            temp.update(FileStorage.__objects)
+            for key, val in temp.items():
+                temp[key] = val.to_dict()
+            json.dump(temp, f)
 
     def reload(self):
-        if os.path.exists(self.__file_path):
-            try:
-                with open(self.__file_path, 'r') as file:
-                    file_content = file.read()
-                    if file_content.strip():  # Check if the file is not empty
-                        data = json.loads(file_content)
-                        for key, obj_data in data.items():
-                            class_name = obj_data['__class__']
-                            del obj_data['__class__']
+        """Loads storage dictionary from file"""
+        from models.base_model import BaseModel
+        from models.user import User
+        from models.place import Place
+        from models.state import State
+        from models.city import City
+        from models.amenity import Amenity
+        from models.review import Review
 
-                            class_mapping = {
-                                'BaseModel': BaseModel,
-                                'User': User,
-                                'State': State,
-                                'City': City,
-                                'Amenity': Amenity,
-                                'Place': Place,
-                                'Review': Review
-                            }
+        classes = {
+                    'BaseModel': BaseModel, 'User': User, 'Place': Place,
+                    'State': State, 'City': City, 'Amenity': Amenity,
+                    'Review': Review
+                  }
+        try:
+            temp = {}
+            with open(FileStorage.__file_path, 'r') as f:
+                temp = json.load(f)
+                for key, val in temp.items():
+                        self.all()[key] = classes[val['__class__']](**val)
+        except FileNotFoundError:
+            pass
 
-                            obj_instance = class_mapping[class_name](
-                                **obj_data)
-                            self.__objects[key] = obj_instance
-            except Exception:
-                pass
+    def delete(self, obj=None):
+        """Deletes a given object from __objects if it exists
+        otherwise do nothing
+        """
+        try:
+            del self.__objects["{}.{}".format(type(obj).__name__, obj.id)]
+        except (AttributeError, KeyError):
+            pass
+
+    def close(self):
+        """
+        calls the reload method
+        """
+        self.reload()
