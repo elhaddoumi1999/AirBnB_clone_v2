@@ -1,29 +1,29 @@
 #!/usr/bin/python3
-"""test for Review"""
-import unittest
+""" """
+from tests.test_models.test_base_model import test_basemodel
 from models.review import Review
-from datetime import datetime
 
 
-class ReviewTestCase(unittest.TestCase):
-    """Class for Review test"""
+class test_review(test_basemodel):
+    """ """
 
-    def test_review(self):
-        new_review = Review()
-        self.assertTrue(hasattr(new_review, "id"))
-        self.assertTrue(hasattr(new_review, "created_at"))
-        self.assertTrue(hasattr(new_review, "updated_at"))
-        self.assertTrue(hasattr(new_review, "place_id"))
-        self.assertTrue(hasattr(new_review, "user_id"))
-        self.assertTrue(hasattr(new_review, "text"))
+    def __init__(self, *args, **kwargs):
+        """ """
+        super().__init__(*args, **kwargs)
+        self.name = "Review"
+        self.value = Review
 
-        self.assertIsInstance(new_review.id, str)
-        self.assertIsInstance(new_review.created_at, datetime)
-        self.assertIsInstance(new_review.updated_at, datetime)
-        self.assertIsInstance(new_review.place_id, str)
-        self.assertIsInstance(new_review.user_id, str)
-        self.assertIsInstance(new_review.text, str)
+    def test_place_id(self):
+        """ """
+        new = self.value()
+        self.assertEqual(type(new.place_id), str)
 
+    def test_user_id(self):
+        """ """
+        new = self.value()
+        self.assertEqual(type(new.user_id), str)
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_text(self):
+        """ """
+        new = self.value()
+        self.assertEqual(type(new.text), str)
