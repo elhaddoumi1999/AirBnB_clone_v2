@@ -94,4 +94,3 @@ class DBStorage:
         """
         self.reload()
         self.__session.close()
-

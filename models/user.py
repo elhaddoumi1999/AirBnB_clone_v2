@@ -23,4 +23,3 @@ class User(BaseModel, Base):
         inherit from base  and Basemodel init
         """
         super().__init__(*args, **kwargs)
-

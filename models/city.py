@@ -21,4 +21,3 @@ class City(BaseModel, Base):
             Init for inherited
         """
         super().__init__(*args, **kwargs)
-
