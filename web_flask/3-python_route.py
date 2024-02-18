@@ -1,41 +1,46 @@
 #!/usr/bin/python3
 """
-flask model
-
+starts a Flask web application
 """
 from flask import Flask
 
 app = Flask(__name__)
 
 
-@app.route('/', strict_slashes=False)
-def hbnb():
+@app.route("/", strict_slashes=False)
+def hello_hbnb():
     """
+    Displays 'Hello HBNB!'
     """
-    return 'Hello HBNB!'
+    return "Hello HBNB!"
 
 
-@app.route('/hbnb', strict_slashes=False)
-def index():
+@app.route("/hbnb", strict_slashes=False)
+def hbnb_display():
     """
+    displays "HBNB"
     """
-    return 'HBNB'
+    return "HBNB"
 
 
-@app.route('/c/<text>', strict_slashes=False)
-def C_is(text):
+@app.route("/c/<text>", strict_slashes=False)
+def cisfun(text):
     """
+    Displays 'C' followed by the value of text
     """
-    return 'C is {:s}'.format(text.replace('_', ' '))
+    text = text.replace("_", " ")
+    return "C {}".format(text)
 
 
-@app.route('/python/', defaults={'text': 'is cool'}, strict_slashes=False)
-@app.route('/python/<text>', strict_slashes=False)
-def python(text):
+@app.route("/python", strict_slashes=False)
+@app.route("/python/<text>", strict_slashes=False)
+def python(text="is cool"):
     """
+    Displays 'Python' followed by the expansion of <text>
     """
-    return 'Python {:s}'.format(text.replace('_', ' '))
+    text = text.replace("_", " ")
+    return "Python {}".format(text)
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host="0.0.0.0")

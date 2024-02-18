@@ -1,39 +1,43 @@
 #!/usr/bin/python3
 """
-flask model
+Routes:
+    /states: HTML page with a list of all State objects.
+    /states/<id>: HTML page displaying the given state with <id>.
 """
-from flask import Flask, render_template
 from models import storage
-from models.state import State
+from flask import Flask
+from flask import render_template
+
 app = Flask(__name__)
-storage.all()
+
+
+@app.route("/states", strict_slashes=False)
+def states():
+    """
+    Displays a HTML page with a list of all states
+    """
+    states = storage.all("State")
+    return render_template("9-states.html", state=states)
+
+
+@app.route("/states/<id>", strict_slashes=False)
+def states_by_id(id):
+    """
+    Displays a HTML page with state that matches id if exists
+    """
+    for state in storage.all("State").values():
+        if state.id == id:
+            return render_template("9-states.html", state=state)
+    return render_template("9-states.html")
 
 
 @app.teardown_appcontext
-def teardown_data(self):
+def teardown(exc):
     """
-        refrech data
+    Remove current SQLAlchemy session
     """
     storage.close()
 
 
-@app.route('/states', strict_slashes=False)
-@app.route("/states/<id>", strict_slashes=False)
-def states_id(id=None):
-    """
-        list state by id if found
-    """
-    info = []
-    states = storage.all(State)
-    if id is None:
-        for k in states:
-            info.append(states[k])
-    else:
-        id = 'State.' + id
-        info = states.get(id)
-    return render_template('9-states.html', states=info, id=id)
-    return render_template('9-states.html', state=id)
-
-
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host="0.0.0.0")
