@@ -1,19 +1,17 @@
 #!/usr/bin/python3
 """
-instantiates storage object
-if environmental variable 'HBNB_TYPE_STORAGE' is set to 'db',
-instantiate database storage
-otherwise instantiates FileStorage
+initialize the models package
 """
+
 from os import getenv
 
 
-if getenv("HBNB_TYPE_STORAGE") == "db":
+storage_t = getenv("HBNB_TYPE_STORAGE")
+
+if storage_t == "db":
     from models.engine.db_storage import DBStorage
     storage = DBStorage()
-    storage.reload()
 else:
     from models.engine.file_storage import FileStorage
     storage = FileStorage()
-    storage.reload()
-
+storage.reload()
