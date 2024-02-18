@@ -1,31 +1,3 @@
-<<<<<<< HEAD
-<!doctype html>
-<html lang="en">
-  <head>
-    <title>HBNB</title>
-  </head>
-  <body>
-  {% if id is none %}
-    <h1>States</h1>
-    <ul>
-    {% for state in states|sort(attribute='name') %}
-      <li>{{ state.id|e }}: <b>{{ state.name|e }}</b></li>
-    {% endfor %}
-    </ul>
-  {% elif states is none %}
-    <h1>Not found!</h1>
-  {% else %}
-    <h1>State: {{ states.name }}</h1>
-    <h3>Cities:</h3>
-    <ul>
-    {% for city in states.cities|sort(attribute='name') %}
-        <li>{{ city.id|e }}: <b>{{ city.name|e }}</b></li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-  </body>
-</html>
-=======
 <!DOCTYPE html>
 <HTML lang="en">
     <HEAD>
@@ -52,4 +24,3 @@
     {% endif %}
     </BODY>
 </HTML>
->>>>>>> a1a68afd0dca7866b0e2a5e292f4e0a52be6468c
