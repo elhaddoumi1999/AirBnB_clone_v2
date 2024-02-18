@@ -1,91 +1,48 @@
-# Configures a web server for deployment of web_static.
+# Redo the task #0 but by using Puppet:
 
-# Nginx configuration file
-$nginx_conf = "server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    add_header X-Served-By ${hostname};
-    root   /var/www/html;
-    index  index.html index.htm;
+exec {'apt-get-update':
+  command => '/usr/bin/apt-get update'
+}
 
-    location /hbnb_static {
-        alias /data/web_static/current;
-        index index.html index.htm;
-    }
-
-    location /redirect_me {
-        return 301 http://cuberule.com/;
-    }
-
-    error_page 404 /404.html;
-    location /404 {
-      root /var/www/html;
-      internal;
-    }
-}"
+package {'apache2.2-common':
+  ensure  => 'absent',
+  require => Exec['apt-get-update']
+}
 
 package { 'nginx':
-  ensure   => 'present',
-  provider => 'apt'
-} ->
+  ensure  => 'installed',
+  require => Package['apache2.2-common']
+}
 
-file { '/data':
-  ensure  => 'directory'
-} ->
+service {'nginx':
+  ensure  =>  'running',
+  require => file_line['LOCATION SETUP']
+}
 
-file { '/data/web_static':
-  ensure => 'directory'
-} ->
-
-file { '/data/web_static/releases':
-  ensure => 'directory'
-} ->
-
-file { '/data/web_static/releases/test':
-  ensure => 'directory'
-} ->
-
-file { '/data/web_static/shared':
-  ensure => 'directory'
-} ->
+file { ['/data', '/data/web_static', '/data/web_static/shared', '/data/web_static/releases', '/data/web_static/releases/test'] :
+  ensure  => 'directory',
+  owner   => 'ubuntu',
+  group   => 'ubuntu',
+  require =>  Package['nginx']
+}
 
 file { '/data/web_static/releases/test/index.html':
   ensure  => 'present',
-  content => "Holberton School Puppet\n"
-} ->
+  content => 'Hello AirBnb',
+  require =>  Package['nginx']
+}
 
 file { '/data/web_static/current':
   ensure => 'link',
-  target => '/data/web_static/releases/test'
-} ->
-
-exec { 'chown -R ubuntu:ubuntu /data/':
-  path => '/usr/bin/:/usr/local/bin/:/bin/'
+  target => '/data/web_static/releases/test',
+  force  => true
 }
 
-file { '/var/www':
-  ensure => 'directory'
-} ->
-
-file { '/var/www/html':
-  ensure => 'directory'
-} ->
-
-file { '/var/www/html/index.html':
+file_line { 'LOCATION SETUP ':
   ensure  => 'present',
-  content => "Holberton School Nginx\n"
-} ->
-
-file { '/var/www/html/404.html':
-  ensure  => 'present',
-  content => "Ceci n'est pas une page\n"
-} ->
-
-file { '/etc/nginx/sites-available/default':
-  ensure  => 'present',
-  content => $nginx_conf
-} ->
-
-exec { 'nginx restart':
-  path => '/etc/init.d/'
+  path    => '/etc/nginx/sites-enabled/default',
+  line    => 'location /hbnb_static/ { alias /data/web_static/current/; autoindex off; } location / { ',
+  match   => '^\s+location+',
+  require => Package['nginx'],
+  notify  => Service['nginx'],
 }
